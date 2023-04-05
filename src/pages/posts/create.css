@@ -1,0 +1,15 @@
+.file-upload {
+    background-color: #e5ebef;
+    color: #989494;
+    cursor: pointer;
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+
+.file-upload:hover {
+    background-color: rgba(150, 151, 152, 0.26);
+}
+
+#myFile {
+    display: none;
+}
