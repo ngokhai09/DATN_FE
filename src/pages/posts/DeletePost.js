@@ -9,7 +9,6 @@ const DeletePost = (props) => {
     const dispatch = useDispatch();
     const handleDelete = async () => {
         dispatch(deletePost(props.id))
-        navigate("/home")
     }
     return (
         <>
@@ -28,6 +27,7 @@ const DeletePost = (props) => {
                                     swal("Poof! Your imaginary file has been deleted!", {
                                         icon: "success",
                                     })
+                                    navigate("/home")
                                 });
                             } else {
                                 swal("Your imaginary file is safe!")

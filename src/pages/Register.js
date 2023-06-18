@@ -5,6 +5,7 @@ import {AccountsRegister} from "../services/AccountService";
 import {ErrorMessage, Field, Form, Formik} from "formik";
 import * as Yup from "yup";
 import swal from "sweetalert";
+import password from "./Password";
 
 const Register = () => {
     const dispatch = useDispatch();
@@ -14,12 +15,15 @@ const Register = () => {
     };
 
     const validationSchema = Yup.object().shape({
-        username: Yup.string().required("Please enter username.")
-            .matches(/^[a-zA-Z0-9]/), password: Yup.string()
-            .required("Please enter password.")
+        username: Yup.string().required("Username must not empty")
+            .matches(/^[a-zA-Z0-9]/, "Username must not have special characters"),
+        password: Yup.string()
+            .required("Password must not empty.")
             .min(6, "Passwords must be at least 6 characters")
-            .max(32, "Password must be at most 14 characters"), passwordAgain: Yup.string()
-            .required("Please re-enter your password. ")
+            .max(32, "Password must be at most 32 characters"),
+        passwordAgain: Yup.string()
+            .required("RePassword must not empty")
+            .oneOf([Yup.ref('password'), null], "Password must match")
     });
     const handleSubmit = async (values) => {
         if (values.password !== values.passwordAgain) {
@@ -66,7 +70,7 @@ const Register = () => {
 
                                     <Field className="form-control" type="text" placeholder="UserName"
                                            name="username"/>
-                                    <alert>
+                                    <alert style={{color: "red", fontSize: "12px", fontWeight: "bold"}}>
                                         <ErrorMessage name={"username"}/>
                                     </alert>
                                 </div>
@@ -83,7 +87,7 @@ const Register = () => {
                                             </span>
                                     </div>
                                     <div id="pswmeter" className="mt-2"></div>
-                                    <alert>
+                                    <alert style={{color: "red", fontSize: "12px", fontWeight: "bold"}}>
                                         <ErrorMessage name={"password"}/>
                                     </alert>
                                     <div className="d-flex mt-1">
@@ -100,17 +104,11 @@ const Register = () => {
                                                className="form-control fakepassword"
                                                name="passwordAgain" style={{borderRadius: '5px'}}/>
                                     </div>
-                                    <alert>
+                                    <alert style={{color: "red", fontSize: "12px", fontWeight: "bold"}}>
                                         <ErrorMessage name={"passwordAgain"}></ErrorMessage>
                                     </alert>
                                 </div>
                                 <div className="mb-3 d-sm-flex justify-content-between">
-                                    <div>
-                                        <input type="checkbox" className="form-check-input"
-                                               id="rememberCheck"/>
-                                        <label className="form-check-label" htmlFor="rememberCheck">Remember
-                                            me?</label>
-                                    </div>
                                     <a href="forgot-password.html">Forgot password?</a>
                                 </div>
 
@@ -118,8 +116,8 @@ const Register = () => {
                                     <button type="submit" className="btn btn-lg btn-primary">Register</button>
                                 </div>
 
-                                <p className="mb-0 mt-3">©2022 <a target="_blank"
-                                                                  href="https://www.webestica.com/">Webestica.</a> All
+                                <p className="mb-0 mt-3">©2023 <a target="_blank"
+                                                                  href="#">Connectivity.</a> All
                                     rights reserved</p>
 
                             </div>

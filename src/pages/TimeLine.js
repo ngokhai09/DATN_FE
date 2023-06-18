@@ -5,6 +5,8 @@ import {findByIdAccount} from "../services/PostService";
 import {searchOtherAccount} from "../services/AccountService";
 import {addFriend, checkFriend, confirmFriend, deleteFriend, getFriends} from "../services/FriendService";
 import {addNotification} from "../services/NotificationService";
+import Post from "../component/Post";
+import {socket} from "../services/socketService";
 
 const TimeLine = () => {
 
@@ -33,14 +35,13 @@ const TimeLine = () => {
     const dispatch = useDispatch();
 
     const handleAddFriend = async ()=>{
-        let data = {idSender:account.idAccount,idReceiver:idAccount};
-        dispatch(addFriend(data));
         let values = {idSender:account.idAccount,idReceiver:idAccount,status:"Friend Request"};
-        dispatch(addNotification(values));
+        socket.emit("friendRequest", values)
     }
 
-    const handleDeleteFriend = async (id)=>{
-        dispatch(deleteFriend(id));
+    const handleDeleteFriend = async (idSent) => {
+        let data = {idSender:idSent,idReceiver:account.idAccount};
+        dispatch(deleteFriend(data));
     }
 
     const handleConfirmFriend = async (id)=>{
@@ -56,6 +57,9 @@ const TimeLine = () => {
         let data = {thisId:account.idAccount,thatId:idAccount};
         dispatch(checkFriend(data));
         dispatch(getFriends(idAccount))
+        socket.on("friendRequestSuccess", ()=>{
+            dispatch(checkFriend(data));
+        })
     }, [])
 
     return (
@@ -89,7 +93,7 @@ const TimeLine = () => {
 
                                             <h1 className="mb-0 h5">{otherAccount.name} <i
                                                 className="bi bi-patch-check-fill text-success small"></i></h1>
-                                            <p>250 connections</p>
+
                                         </div>
 
                                     </div>
@@ -100,11 +104,12 @@ const TimeLine = () => {
                                             className="bi bi-geo-alt me-1"></i> {otherAccount.address}</li>
                                         {otherAccount.idAccount !== account.idAccount &&
                                             <>
+                                                {console.log(friend)}
                                                 {friend === "Add Friend" && <span as={"button"} className="badge bg-primary" onClick={()=>{handleAddFriend()}}>Add Friend</span>}
                                                 {friend.status === "Friends" &&
                                                     <>
                                                         <span as={"button"} className="badge bg-primary">Friends</span>
-                                                        <span as={"button"} className="badge bg-primary bg-opacity-10 text-secondary" onClick={()=>{handleDeleteFriend(friend.friend.id)}}> Delete </span>
+                                                        <span as={"button"} className="badge bg-primary bg-opacity-10 text-secondary" onClick={()=>{handleDeleteFriend(friend.friend.id)}}> Unfriend </span>
                                                     </>}
                                                 {friend.status === "Cancel Request" && <span as={"button"} className="badge bg-primary" onClick={()=>{handleDeleteFriend(friend.friend.id)}}>Cancel Request</span>}
                                                 {friend.status === "Confirm" &&
@@ -132,72 +137,7 @@ const TimeLine = () => {
 
 
                             {posts !== undefined && posts.map(it => (
-                                <div className="card">
-
-                                    <div className="card-header border-0 pb-0">
-                                        <div className="d-flex align-items-center justify-content-between">
-                                            <div className="d-flex align-items-center">
-
-                                                <div className="avatar avatar-story me-2">
-                                                    <Link to={""}> <img className="avatar-img rounded-circle"
-                                                                        src={it.account.avatar} alt=""/> </Link>
-                                                </div>
-
-                                                <div>
-                                                    <div className="nav nav-divider">
-                                                        <h6 className="nav-item card-title mb-0"><Link
-                                                            to={""}> {it.account.name} </Link></h6>
-                                                        <span className="nav-item small"> {it.time}</span>
-                                                    </div>
-                                                    <p className="mb-0 small">{it.status}</p>
-                                                </div>
-                                            </div>
-
-
-                                        </div>
-                                    </div>
-
-
-                                    <div className="card-body">
-                                        <p>{it.content}</p>
-
-                                        <img className="card-img" src={it.image} alt="Post"/>
-
-                                        <ul className="nav nav-stack py-3 small">
-                                            <li className="nav-item">
-                                                <a className="nav-link active" href="#!"> <i
-                                                    className="bi bi-hand-thumbs-up-fill pe-1"></i>Liked
-                                                    ({it.like !== undefined && it.like.length})</a>
-                                            </li>
-                                            <li className="nav-item">
-                                                <a className="nav-link" href="#!"> <i
-                                                    className="bi bi-chat-fill pe-1"></i>Comments
-                                                    ({it.comment !== undefined && it.comment.length})</a>
-                                            </li>
-                                        </ul>
-
-                                        <div className="d-flex mb-3">
-
-                                            <div className="avatar avatar-xs me-2">
-                                                <a href="#!"> <img className="avatar-img rounded-circle"
-                                                                   src={otherAccount.avatar} alt=""/> </a>
-                                            </div>
-
-                                            <form className="position-relative w-100">
-                                                <textarea className="form-control pe-4 bg-light" rows="1"
-                                                          placeholder="Add a comment..."></textarea>
-                                            </form>
-                                        </div>
-
-                                        <ul className="comment-wrap list-unstyled">
-
-
-                                        </ul>
-
-                                    </div>
-
-
-                                </div>
+                                <Post it={it}/>
                             ))}
 
                         </div>

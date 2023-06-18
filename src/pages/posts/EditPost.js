@@ -101,8 +101,9 @@ const EditPost = (props) => {
                                                name={'content'}
                                                placeholder="Share your thoughts..."></Field>
                                     </div>
-                                    {(currentPost && currentPost.image != 1) ? <div className="image-container2">
-                                        <img src={currentPost.image} style={{width: 400,height : 350}}/>
+                                    {(currentPost && currentPost.image) ? <div className="image-container2">
+                                        <img src={currentPost.image[0]?.url} style={{width: 400,height : 350}}/>
+
                                         <div className="close-button" data-bs-dismiss="modal"
                                              style={{color: '#cc0000', fontSize: "30px", position: "absolute", right: 86, top: 85, borderRadius: 1}}
                                              onClick={() => {

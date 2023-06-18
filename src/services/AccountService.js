@@ -5,19 +5,22 @@ export const AccountsRegister = createAsyncThunk(
     'accounts/accountsRegister',
     async (data) => {
         const response = await axios.post('http://localhost:4000/accounts/register', data);
+        console.log(response.data)
         return response.data
     }
 )
 export const AccountsLogin = createAsyncThunk(
     'accounts/accountsLogin',
     async (data) => {
+        console.log(2, data)
         return await axios.post('http://localhost:4000/accounts/login', data);
     }
 )
 export const AccountsLoginGG = createAsyncThunk(
     'accounts/accountsLoginGG',
     async (data) => {
-        return await axios.post('http://localhost:4000/accounts/loginGG', data);
+        let res = await axios.post('http://localhost:4000/accounts/loginGG', data);
+        return res.data;
     }
 )
 export const AccountsLogout = createAsyncThunk(
@@ -30,6 +33,7 @@ export const AccountsLogout = createAsyncThunk(
 export const AccountsEdit = createAsyncThunk(
     'accounts/accountsEdit',
     async (data) => {
+        console.log(data)
         await axios.put(`http://localhost:4000/accounts/${data.idAccount}`, data);
         return data;
     }
@@ -53,5 +57,11 @@ export const searchOtherAccount = createAsyncThunk(
     async (data) => {
         const res = await axios.get(`http://localhost:4000/accounts/findById/${data}`);
         return res.data
+    }
+)
+export const searchAccountByName = createAsyncThunk(
+    'accounts/seacrhByName',
+    async (data)=>{
+        const res = await axios.get(`http://localhost:4000/accounts/seacrh?keyword=${data}`)
     }
 )

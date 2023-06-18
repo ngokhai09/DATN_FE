@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,6 +11,7 @@ import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import jwt_decode from "jwt-decode";
 import * as Yup from "yup";
 import swal from "sweetalert";
+
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -25,7 +26,8 @@ const Login = () => {
   });
   let [userGG, setUserGG] = useState({});
   async function check() {
-    if (checkUSer === false) {
+    console.log(checkUSer)
+    if (checkUSer == false) {
       await dispatch(AccountsRegister(userGG));
       await dispatch(AccountsLogin(userGG));
       swal(`Welcome to Bug Men.`, {
@@ -33,7 +35,8 @@ const Login = () => {
       });
       navigate("/home");
     }
-    if (checkUSer === true) {
+    if (checkUSer == true) {
+      console.log(userGG)
       await dispatch(AccountsLogin(userGG));
       swal(`Welcome to Bug Men.`, {
         icon: "success",
@@ -41,6 +44,9 @@ const Login = () => {
       navigate("/home");
     }
   }
+  useEffect(()=>{
+    check()
+  }, [checkUSer])
 
   const handleSubmit = async (values) => {
     await dispatch(AccountsLogin(values)).then((value) => {
@@ -98,7 +104,7 @@ const Login = () => {
                       placeholder="UserName"
                       name="username"
                     />
-                    <alert>
+                    <alert style={{color: "red", fontSize: "12px", fontWeight: "bold"}}>
                       <ErrorMessage name={"username"} />
                     </alert>
                   </div>
@@ -117,37 +123,14 @@ const Login = () => {
                       </span>
                     </div>
                     <div id="psw meter" className="mt-2"></div>
-                    <alert>
-                      <ErrorMessage name={"password"} />
+                    <alert  style={{color: "red", fontSize: "12px", fontWeight: "bold"}} >
+                      <ErrorMessage style={{color: "red"}} name={"password"} />
                     </alert>
-                    <div className="d-flex mt-1">
-                      <div id="psw meter-message" className="rounded"></div>
-                      <div className="ms-auto">
-                        <i
-                          className="bi bi-info-circle ps-1"
-                          data-bs-container="body"
-                          data-bs-toggle="popover"
-                          data-bs-placement="top"
-                          data-bs-content="Include at least one uppercase, one lowercase, one special character, one number and 8 characters long."
-                          data-bs-original-title=""
-                          title=""
-                        ></i>
-                      </div>
-                    </div>
+
                   </div>
                   <div className="mb-3 d-sm-flex justify-content-between">
                     <div>
-                      <input
-                        type="checkbox"
-                        className="form-check-input"
-                        id="rememberCheck"
-                      />
-                      <label
-                        className="form-check-label"
-                        htmlFor="rememberCheck"
-                      >
-                        Remember me?
-                      </label>
+
                     </div>
                     <a href="forgot-password.html">Forgot password?</a>
                   </div>
@@ -159,34 +142,32 @@ const Login = () => {
                   </div>
                   <div className="row mt-3">
                     <div className={"col-12 d-flex justify-content-center"}>
-                      <GoogleOAuthProvider clientId="1004137847361-3p3lh814vts1f6ts9e2al867rjrjp9gc.apps.googleusercontent.com">
+
+
                         <GoogleLogin
+
                           onSuccess={async (credentialResponse) => {
                             const decoded = jwt_decode(
                               credentialResponse.credential
                             );
                             let user = {
                               username: decoded.email,
-                              password: decoded.sub,
                               name: decoded.name,
                               avatar: decoded.picture,
                             };
                             await setUserGG(user);
-                            await dispatch(AccountsLogin(user));
-                            await dispatch(AccountsLoginGG(user));
-                            check().then();
+                            await dispatch(AccountsLoginGG(user))
                           }}
-                          onError={() => {
-                            console.log("Login Failed");
+                          onError={(e) => {
+                            console.log(e);
                           }}
                         />
-                      </GoogleOAuthProvider>
                     </div>
                   </div>
                   <p className="mb-0 mt-3">
-                    ©2022{" "}
-                    <a target="_blank" href="https://www.webestica.com/">
-                      Webestica.
+                    ©2023{" "}
+                    <a target="_blank" href="#">
+                      Connectivity.
                     </a>{" "}
                     All rights reserved
                   </p>

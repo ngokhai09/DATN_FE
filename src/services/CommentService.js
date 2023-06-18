@@ -31,7 +31,8 @@ export const addComment = createAsyncThunk(
 export const findByIdComment = createAsyncThunk(
     'comments/findByIdComment',
     async (data) => {
-        const res = await axios.get(`http://localhost:4000/comments/findById/${data}`);
+        const res = await axios.get(`http://localhost:4000/comments/posts/${data.post}`);
+        console.log(res.data)
         return res.data
     }
 )

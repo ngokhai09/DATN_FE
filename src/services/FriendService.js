@@ -4,7 +4,7 @@ import axios from "axios";
 export const checkFriend = createAsyncThunk(
     'friends/checkFriend',
     async (data) => {
-        const response = await axios.get(`http://localhost:4000/friends/search?thisId=${data.thisId}&thatId=${data.thatId}`);
+        const response = await axios.get(`http://localhost:4000/friends/search?thisId=${data.thisId}&thatId=${+data.thatId}`);
         return response.data;
     }
 )
@@ -18,7 +18,7 @@ export const addFriend = createAsyncThunk(
 export const deleteFriend = createAsyncThunk(
     'friends/deleteFriend',
     async (data) => {
-        await axios.delete(`http://localhost:4000/friends/${data}`);
+        await axios.delete(`http://localhost:4000/friends/${data.idSender}?idReceive=${data.idReceiver}`);
         return data;
     }
 )
@@ -36,3 +36,11 @@ export const getFriends = createAsyncThunk(
         return response.data;
     }
 )
+export const getFriendRequest = createAsyncThunk(
+    'friends/getFriends',
+    async (data) => {
+        const response = await axios.get(`http://localhost:4000/friends/getFriendRequests/${data}`);
+        return response.data;
+    }
+)
+

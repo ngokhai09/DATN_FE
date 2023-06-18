@@ -1,11 +1,15 @@
 import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from "react-redux";
-import {findByIdPost, getPosts} from "../services/PostService";
+import {findByIdAccount, findByIdPost, getPosts} from "../services/PostService";
 import {Link} from "react-router-dom";
 import {getDownloadURL, ref, uploadBytesResumable} from "firebase/storage";
 import {storage} from "../services/fireBase";
 import ShowPost from "./posts/ShowPost";
 import CreatePost from "./posts/CreatePost";
+import {searchOtherAccount} from "../services/AccountService";
+import {checkFriend, confirmFriend, deleteFriend, getFriendRequest, getFriends} from "../services/FriendService";
+import {socket} from "../services/socketService";
+import {addNotification, checkNotification, getNotifications} from "../services/NotificationService";
 
 const ShowHome = () => {
 
@@ -17,12 +21,31 @@ const ShowHome = () => {
     const otherAccount = useSelector(state => {
         return state.account.otherAccount
     })
+    const friends = useSelector(state => {
+        return state.friends.friends
+    })
+    const [friendRequests, setFriendRequests] = useState([]);
+    const handleConfirmFriend = async (id)=>{
+        let values = {idSender:id,idReceiver:account.idAccount,status:"Friend Confirm"};
+        setFriendRequests(prev=> prev.filter(item=> item.idAccount !== id))
+        socket.emit("ConfirmFriends", values)
+        dispatch(getFriends(account.idAccount))
+        console.log(friends)
+
+    }
+    const handleDeleteFriend = async (idSent) => {
+        let data = {idSender:idSent,idReceiver:account.idAccount};
+        dispatch(deleteFriend(data));
+        setFriendRequests(prev=> prev.filter(item=> item.idAccount !== idSent))
+
+    }
 
     const dispatch = useDispatch();
 
     useEffect(() => {
         handleUpload()
     }, [images])
+
 
     const handleUpload = () => {
         const promises = [];
@@ -55,12 +78,17 @@ const ShowHome = () => {
     const [progress, setProgress] = useState(0);
     useEffect(() => {
         dispatch(getPosts())
+        dispatch(getFriends(account.idAccount))
+        dispatch(getFriendRequest(account.idAccount)).then((data)=>{
+            setFriendRequests(data.payload)
+        })
+
     }, [])
 
 
     return (<>
 
-            <main >
+            <main>
                 <div className="container">
                     <div className="row g-4">
                         <div className="col-lg-3">
@@ -90,8 +118,9 @@ const ShowHome = () => {
                                                     <h5 className="mb-0"><Link
                                                         to={`/home/myTimeline`}>{account.name}</Link>
                                                     </h5>
-                                                    <small>Nhà phát triển web tại CodeGym</small>
-                                                    <p className="mt-3">Tôi muốn thay đổi thế giới, nhưng họ không cho tôi mã nguồn..</p>
+                                                    <small>Lập trình viên web </small>
+                                                    <p className="mt-3">Tôi muốn thay đổi thế giới, nhưng họ không cho
+                                                        tôi mã nguồn..</p>
 
                                                 </div>
 
@@ -110,10 +139,12 @@ const ShowHome = () => {
                                                             alt=""/><span>Connections </span></Link>
                                                     </li>
                                                     <li className="nav-item">
-                                                        <Link className="nav-link" to={`/messages?senderId=${account.idAccount}&receiverId=${otherAccount.idAccount}`}> <img
-                                                            className="me-2 h-20px fa-fw"
-                                                            src="assets/images/icon/chat-alt-outline-filled.svg"
-                                                            alt=""/><span>Message </span></Link>
+                                                        <Link className="nav-link"
+                                                              to={`/messages?senderId=${account.idAccount}&receiverId=${otherAccount.idAccount}`}>
+                                                            <img
+                                                                className="me-2 h-20px fa-fw"
+                                                                src="assets/images/icon/chat-alt-outline-filled.svg"
+                                                                alt=""/><span>Message </span></Link>
                                                     </li>
 
                                                 </ul>
@@ -170,69 +201,59 @@ const ShowHome = () => {
                                 <div className="col-sm-6 col-lg-12">
                                     <div className="card">
                                         <div className="card-header pb-0 border-0">
-                                            <h5 className="card-title mb-0">Who to follow</h5>
+                                            <h5 className="card-title mb-0">Friends Request</h5>
                                         </div>
                                         <div className="card-body">
                                             <div className="hstack gap-2 mb-3">
-                                                <div className="avatar">
-                                                    <a href="#"> <img className="avatar-img rounded-circle"
-                                                                      src="assets/images/avatar/01.jpg" alt=""/> </a>
-                                                </div>
-                                                <div className="overflow-hidden">
-                                                    <a className="h6 mb-0" href="#!">Lori Ferguson </a>
-                                                    <p className="mb-0 small text-truncate">Web Developer at
-                                                        Webestica</p>
-                                                </div>
-                                                <a className="btn btn-primary-soft rounded-circle icon-md ms-auto"
-                                                   href="#"><i
-                                                    className="fa-solid fa-plus"> </i></a>
+                                                {friendRequests.length > 0 ? friendRequests.map(item =>  { return <>
+                                                    <div className="avatar"><img className="avatar-img rounded-circle"
+                                                                                 src={item.avatar} alt=""/>
+                                                    </div>
+                                                    <div className="overflow-hidden">
+                                                        <div className="row"><Link to={`timeLine/${item.idAccount}`} className="h6 mb-0">{item.name}</Link></div>
+
+                                                        <button className={"btn "} style={{padding: "2px"}}><span
+                                                            className="badge bg-primary" onClick={()=>handleConfirmFriend(item.idAccount)}>Confirm</span>
+                                                        </button>
+                                                        <button className={"btn "} style={{padding: "2px"}}><span
+                                                            className="badge badge-danger" onClick={()=>handleDeleteFriend(item.idAccount)}> Cancel </span>
+                                                        </button>
+                                                    </div>
+                                                </>
+                                                }): <p style={{textAlign: "center"}}>No friend requests</p>}
+
+
                                             </div>
-                                            <div className="d-grid mt-3">
-                                                <a className="btn btn-sm btn-primary-soft" href="#!">View more</a>
+                                            <div className="d-grid mt-3" >
+                                                <Link className="btn btn-sm btn-primary-soft" to={""} style={friendRequests.length > 0 ? {}: {pointerEvents: "none"}}>View more</Link>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="col-sm-6 col-lg-12">
+                                <div>
                                     <div className="card">
                                         <div className="card-header pb-0 border-0">
-                                            <h5 className="card-title mb-0">Today’s news</h5>
+                                            <h5 className="card-title mb-0">Friends</h5>
                                         </div>
                                         <div className="card-body">
-                                            <div className="mb-3">
-                                                <h6 className="mb-0"><a href="blog-details.html">Ten questions you
-                                                    should
-                                                    answer truthfully</a></h6>
-                                                <small>2hr</small>
-                                            </div>
-                                            <div className="mb-3">
-                                                <h6 className="mb-0"><a href="blog-details.html">Five unbelievable facts
-                                                    about money</a></h6>
-                                                <small>3hr</small>
-                                            </div>
-                                            <div className="mb-3">
-                                                <h6 className="mb-0"><a href="blog-details.html">Best Pinterest Boards
-                                                    for
-                                                    learning about business</a></h6>
-                                                <small>4hr</small>
-                                            </div>
-                                            <div className="mb-3">
-                                                <h6 className="mb-0"><a href="blog-details.html">Skills that you can
-                                                    learn
-                                                    from business</a></h6>
-                                                <small>6hr</small>
-                                            </div>
-                                            <a href="#!" role="button"
-                                               className="btn btn-link btn-link-loader btn-sm text-secondary d-flex align-items-center"
-                                               data-bs-toggle="button" aria-pressed="true">
-                                                <div className="spinner-dots me-2">
-                                                    <span className="spinner-dot"></span>
-                                                    <span className="spinner-dot"></span>
-                                                    <span className="spinner-dot"></span>
+                                            {friends !== undefined && friends.map(it => (
+                                                <div className="hstack gap-2 mb-3">
+                                                    <div className="avatar">
+                                                        <a href="#"> <img className="avatar-img rounded-circle"
+                                                                          src={it.avatar}
+                                                                          alt=""/> </a>
+                                                    </div>
+                                                    <div className="overflow-hidden">
+                                                        <Link className="h6 mb-0"
+                                                              to={`/home/timeLine/${it.idAccount}`}>{it.name} </Link>
+                                                    </div>
+
                                                 </div>
-                                                View all latest news
-                                            </a>
+
+                                            ))}
+
                                         </div>
+
                                     </div>
                                 </div>
                             </div>

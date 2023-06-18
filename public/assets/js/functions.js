@@ -427,9 +427,9 @@ var e = {
 			var changeThemeToDark = () => {
 				document.documentElement.setAttribute("data-theme", "dark") // set theme to dark
 				if(dir == 'rtl') {
-						style.setAttribute('href', 'assets/css/style-dark-rtl.html');
+						style.setAttribute('href', '/assets/css/style-dark-rtl.html');
 				} else {
-						style.setAttribute('href', 'assets/css/style-dark.css');
+						style.setAttribute('href', '/assets/css/style-dark.css');
 				}
 				localStorage.setItem("data-theme", "dark") // save theme to local storage
 			}
@@ -437,9 +437,9 @@ var e = {
 			var changeThemeToLight = () => {
 				document.documentElement.setAttribute("data-theme", "light") // set theme light
 				if(dir == 'rtl') {
-						style.setAttribute('href', 'assets/css/style-rtl.html');
+						style.setAttribute('href', '/assets/css/style-rtl.html');
 				} else {
-						style.setAttribute('href', 'assets/css/style.css');
+						style.setAttribute('href', '/assets/css/style.css');
 				}
 				
 				localStorage.setItem("data-theme", 'light') // save theme to local storage
@@ -622,7 +622,7 @@ var e = {
   },
 	// END: Flat picker
 
-	// START: 15 Avatar Image
+	// START: 15 AvatarProfile Image
 	avatarImg: function () {
 		if (e.isVariableDefined(e.select('#avatarUpload'))) {
 		
@@ -630,7 +630,7 @@ var e = {
 			avtReset = e.select("#avatar-reset-img"),
 			avtPreview = e.select('#avatar-preview');
 		
-			// Avatar upload and replace
+			// AvatarProfile upload and replace
 			avtInput.addEventListener('change', readURL, true);
 			function readURL(){
 					const file = avtInput.files[0];
@@ -647,13 +647,13 @@ var e = {
 					avtInput.value = '';
 			}
 		
-			// Avatar remove functionality
+			// AvatarProfile remove functionality
 			avtReset.addEventListener("click", function(){
 				avtPreview.src = "assets/images/avatar/placeholder.jpg";
 			});
 		}			
 	},
-	// END: Avatar Image
+	// END: AvatarProfile Image
 
 	// START: 16 Custom Scrollbar
 	customScrollbar: function () {

@@ -4,8 +4,14 @@ import {useDispatch, useSelector} from "react-redux";
 import {findByIdAccount} from "../services/PostService";
 import {getFriends} from "../services/FriendService";
 import DeletePost from "./posts/DeletePost";
+import DateTime from "../component/DateTime";
+import * as PropTypes from "prop-types";
+import Post from "../component/Post";
 
 
+
+
+DateTime.propTypes = {};
 const MyTimeLine = () => {
 
     const posts = useSelector(state => {
@@ -63,7 +69,6 @@ const MyTimeLine = () => {
 
                                             <h1 className="mb-0 h5">{account.name} <i
                                                 className="bi bi-patch-check-fill text-success small"></i></h1>
-                                            <p>250 connections</p>
                                         </div>
 
                                         <div className="d-flex mt-3 justify-content-center ms-sm-auto">
@@ -108,66 +113,7 @@ const MyTimeLine = () => {
                                 </div>
                             </div>
                             {posts !== undefined && posts.map(it => (
-                                <div className="card">
-
-                                    <div className="card-header border-0 pb-0">
-                                        <div className="d-flex align-items-center justify-content-between">
-                                            <div className="d-flex align-items-center">
-
-                                                <div className="avatar avatar-story me-2">
-                                                    <Link to={""}> <img className="avatar-img rounded-circle"
-                                                                        src={it.account.avatar} alt=""/> </Link>
-                                                </div>
-
-                                                <div>
-                                                    <div className="nav nav-divider">
-                                                        <h6 className="nav-item card-title mb-0"><Link
-                                                            to={""}> {it.account.name} </Link></h6>
-                                                        <span className="nav-item small"> {it.time}</span>
-                                                    </div>
-                                                    <p className="mb-0 small">{it.status}</p>
-                                                </div>
-                                            </div>
-
-                                            <div className="dropdown">
-                                                <a href="#"
-                                                   className="text-secondary btn btn-secondary-soft-hover py-1 px-2"
-                                                   id="cardFeedAction1" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <i className="bi bi-three-dots"></i>
-                                                </a>
-
-                                                <ul className="dropdown-menu dropdown-menu-end"
-                                                    aria-labelledby="aboutAction">
-                                                    <li><Link className="dropdown-item" to={`/${it.idPost}`}> <i
-                                                        className="bi bi-pencil-square fa-fw pe-2"></i>Edit</Link></li>
-                                                    <DeletePost id={it.idPost}/>
-                                                </ul>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                    <div className="card-body">
-                                        <p>{it.content}</p>
-
-                                        <Link to={`/${it.idPost}`}> <img className="card-img" src={it.image}
-                                                                         alt="Post"/></Link>
-
-                                        <ul className="nav nav-stack py-3 small">
-                                            <li className="nav-item">
-                                                <a className="nav-link active" href="#!"> <i
-                                                    className="bi bi-hand-thumbs-up-fill pe-1"></i>Liked
-                                                    ({it.like !== undefined && it.like.length})</a>
-                                            </li>
-                                            <li className="nav-item">
-                                                <a className="nav-link" href="#!"> <i
-                                                    className="bi bi-chat-fill pe-1"></i>Comments
-                                                    ({it.comment !== undefined && it.comment.length})</a>
-                                            </li>
-                                        </ul>
-                                        <ul className="comment-wrap list-unstyled">
-                                        </ul>
-                                    </div>
-                                </div>
+                                <Post it={it}/>
                             ))}
                         </div>
                         <div className="col-lg-4">

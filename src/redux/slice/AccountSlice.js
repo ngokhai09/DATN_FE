@@ -9,12 +9,13 @@ import {
     AccountsLoginGG,
     searchOtherAccount
 } from "../../services/AccountService";
+import {json} from "react-router-dom";
 
 const initialState = {
     account: [],
     checkUser: null,
     otherAccount: {account : {}},
-    currentAccount: JSON.parse(localStorage.getItem('account')),
+    currentAccount: null,
 }
 const accountSlice = createSlice({
     name: 'account', initialState, reducers: {}, extraReducers: builder => {
@@ -22,33 +23,43 @@ const accountSlice = createSlice({
         //     state.account.push(payload.data);
         // });
 
-        builder.addCase(findById.fulfilled, (state, action) => {
-            state.account = action.payload;
+        builder.addCase(findById.fulfilled, (state, {payload}) => {
+            state.account = payload;
+            state.currentAccount = payload;
         });
         builder.addCase(AccountsEdit.fulfilled, (state, action) => {
             state.currentAccount = action.payload;
-            localStorage.setItem('account', JSON.stringify(action.payload));
+            localStorage.setItem('account', JSON.stringify(action.payload.idAccount));
         });
 
         builder.addCase(AccountsLogin.fulfilled, (state, {payload}) => {
             state.account = payload.data;
             state.currentAccount = payload.data;
-            localStorage.setItem('account', JSON.stringify(payload.data));
             if (state.account !== 'User is not exit' && state.account !== 'Password is wrong') {
-                localStorage.setItem("isAccount", payload.data.idAccount)
+                localStorage.setItem("account", payload.data.idAccount)
                 localStorage.setItem("access_token", payload.data.token)
-                localStorage.setItem("nameAccount", payload.data.username)
-                localStorage.setItem("avatar", payload.data.avatar)
             }
 
         });
         builder.addCase(AccountsLogout.fulfilled, (state, {payload}) => {
             state.accountShow = true
-            localStorage.setItem('accountShow', state.accountShow)
-            localStorage.clear()
+            state.account = payload.data;
+            state.currentAccount = payload.data;
+            if (state.account !== 'User is not exit' && state.account !== 'Password is wrong') {
+                localStorage.setItem("account", payload.data.idAccount)
+                localStorage.setItem("access_token", payload.data.token)
+            }
         })
         builder.addCase(AccountsLoginGG.fulfilled, (state, {payload}) => {
-            state.checkUser = payload.data
+            state.accountShow = true
+            state.account = payload;
+            state.currentAccount = payload;
+            if (state.account !== 'User is not exit' && state.account !== 'Password is wrong') {
+                localStorage.setItem("account", payload.idAccount)
+                localStorage.setItem("access_token", payload.token)
+            }
+            state.checkUser = payload.idAccount != null;
+
         })
         builder.addCase(searchOtherAccount.fulfilled, (state, action) => {
             state.otherAccount = action.payload

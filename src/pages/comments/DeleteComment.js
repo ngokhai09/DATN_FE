@@ -9,7 +9,7 @@ const DeleteComment = (props) => {
     const dispatch = useDispatch();
     const handleDeleteComment = async () => {
         dispatch(deleteComment(props.id))
-        navigate('')
+        props.comments(props.id)
     }
     return (
         <>
